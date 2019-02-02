@@ -91,6 +91,6 @@ class PropertyClient(object):
 
     def add_callback(self, value_name, func):
         if value_name in self.subscribers:
-            self.subscribers[value_name].extend(func)
+            self.subscribers[value_name].append(func)
         else:
             self.subscribers[value_name] = [func]

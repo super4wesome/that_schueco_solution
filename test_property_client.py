@@ -31,7 +31,11 @@ if __name__ == '__main__':
     def custom_callback(value):
         print("Custom callback received:", value)
 
+    def other_custom_callback(value):
+        print("Other custom callback received:", value)
+
     prop.add_callback("ambient_temperature", custom_callback)
+    prop.add_callback("ambient_temperature", other_custom_callback)
 
     print("Going into passive spin mode, only receiving values...")
     prop.spin()
