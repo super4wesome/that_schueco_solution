@@ -33,9 +33,9 @@ class PropertyClient(object):
             on_error=lambda ws, msg: self.on_error(ws, msg),
             on_close=lambda ws: self.on_close(ws))
         # Start run_forever() asynchronously to be non-blocking.
-        thread = threading.Thread(target=self.ws.run_forever)
-        thread.daemon = True
-        thread.start()
+        self.run_thread = threading.Thread(target=self.ws.run_forever)
+        self.run_thread.daemon = True
+        self.run_thread.start()
 
     def wait_until_connected(self, timeout=5):
         # Stupid but YOLO
@@ -43,11 +43,21 @@ class PropertyClient(object):
             time.sleep(1)
             timeout -= 1
 
+    def is_connected(self):
+        return self.ws.sock.connected
+
+    def spin(self):
+        try:
+            while self.run_thread.is_alive():
+                self.run_thread.join(1)
+        except KeyboardInterrupt:
+            pass
+
     def on_message(self, ws, message):
         payload = json.loads(message)
         if payload["type"] == "property_update":
             self.data.update({payload["value_name"]: payload["value"]})
-        print("Updated", payload["value_name"], "to", payload["value"])
+        print(payload["value_name"], "was set to", payload["value"])
 
     def on_error(self, ws, error):
         print("ERROR:", error)
@@ -68,4 +78,9 @@ class PropertyClient(object):
         request = SET_VALUE
         request["value_name"] = value_name
         request["value"] = value
+        print("Sending request to update", request["value_name"], "to",
+              request["value"])
         self.ws.send(json.dumps(request))
+
+    def get_value(self, value_name):
+        return self.data[value_name]

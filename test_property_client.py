@@ -20,7 +20,13 @@ if __name__ == '__main__':
     prop = PropertyClient(URL, prop_id=666)
     prop.wait_until_connected(timeout=10)
 
-    while prop.ws.sock.connected:
-        for i in range(3):
-            prop.set_value("wind_speed", 10 * i)
-            time.sleep(5)
+    i = 0
+    while prop.is_connected() and i <= 3:
+        prop.set_value("wind_speed", 10 * i)
+        print("Checking value for ambient temperature:",
+              prop.get_value("ambient_temperature"))
+        time.sleep(2)
+        i += 1
+
+    print("Going into passive spin mode, only receiving values...")
+    prop.spin()
