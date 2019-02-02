@@ -26,6 +26,7 @@ class PropertyClient(object):
     def __init__(self, url, prop_id=0):
         self.prop_id = prop_id
         self.data = {}
+        self.subscribers = {}
         self.ws = websocket.WebSocketApp(
             url,
             on_open=lambda ws: self.on_open(ws),
@@ -58,6 +59,9 @@ class PropertyClient(object):
         if payload["type"] == "property_update":
             self.data.update({payload["value_name"]: payload["value"]})
         print(payload["value_name"], "was set to", payload["value"])
+        if payload["value_name"] in self.subscribers:
+            for callback in self.subscribers[payload["value_name"]]:
+                callback(payload["value"])
 
     def on_error(self, ws, error):
         print("ERROR:", error)
@@ -84,3 +88,9 @@ class PropertyClient(object):
 
     def get_value(self, value_name):
         return self.data[value_name]
+
+    def add_callback(self, value_name, func):
+        if value_name in self.subscribers:
+            self.subscribers[value_name].extend(func)
+        else:
+            self.subscribers[value_name] = [func]

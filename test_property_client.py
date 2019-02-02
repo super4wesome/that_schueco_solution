@@ -28,5 +28,10 @@ if __name__ == '__main__':
         time.sleep(2)
         i += 1
 
+    def custom_callback(value):
+        print("Custom callback received:", value)
+
+    prop.add_callback("ambient_temperature", custom_callback)
+
     print("Going into passive spin mode, only receiving values...")
     prop.spin()
