@@ -21,27 +21,26 @@ if __name__ == "__main__":
         reader = csv.reader(dataset)
         header = next(reader)
         print(header)
-        i = 0
         for row in reader:
-            # i += 1
-            # if i % 60 != 0:
-            #     continue
             date_time_str = row[0]
-            date_time = parser.parse(date_time_str)
+            date_time = parser.parse(date_time_str, dayfirst=True)
+            if date_time < parser.parse("01.04.2009 00:00:00", dayfirst=True):
+                # skip boring winter
+                continue
             temp = row[2]
             atmospheric_pressure = float(row[1])
+            relative_humidity = float(row[5])
             wind_direction = row[14]
             wind_speed = row[12]
             prop.set_value("wind_speed", wind_speed)
             prop.set_value("wind_direction", wind_direction)
             prop.set_value("userdefined_string_1", date_time_str)
             prop.set_value("ambient_temperature", temp)
-            print(date_time.hour)
             if 21 < date_time.hour or date_time.hour < 6:
                 prop.set_value("sun_state", "Dark")
             # Approximately the mean of the dataset.
-            elif atmospheric_pressure > 990:
+            elif atmospheric_pressure > 990 and relative_humidity < 65:
                 prop.set_value("sun_state", "Sunny")
             else:
                 prop.set_value("sun_state", "Cloudy")
-            time.sleep(0.05)
+            time.sleep(0.5)
