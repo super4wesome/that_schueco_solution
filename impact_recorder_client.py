@@ -3,16 +3,11 @@
 import paho.mqtt.client as mqtt
 
 def on_msg(client, userdata, msg):
-
     print(msg.payload)
-    # return
-
 
     p = str(msg.payload)#[2:][:-1]
     spl = p.split(',')
 
-    print p
-    print spl
     vals = [float(s) for s in spl]
 
     print(vals)

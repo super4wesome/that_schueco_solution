@@ -10,9 +10,6 @@ client = mqtt.Client()
 client.connect("broker.mqttdashboard.com", 1883, 60)
 client.subscribe(topic="be5/impact")
 
-
-
-
 import serial
 ser = None
 
