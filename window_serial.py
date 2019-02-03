@@ -4,6 +4,7 @@ import serial
 import time
 import websocket
 from property_client import PropertyClient
+import paho.mqtt.client as mqtt
 
 
 class SchuecoConnection:
@@ -87,6 +88,9 @@ class SchuecoConnection:
         print(data)
         self.move_window(data)
 
+    def on_mqtt_message(self, client, userdata, msg):
+        print(msg.topic + " " + str(msg.payload))
+        # self.move_window("Tilt")
 
 if __name__ == '__main__':
     sc = SchuecoConnection()
@@ -99,12 +103,24 @@ if __name__ == '__main__':
     prop.wait_until_connected(timeout=10)
     prop.add_callback("room2nd_window_state", sc.window_state_callback)
 
+    client = mqtt.Client()
+    client.on_message = sc.on_mqtt_message
+
+    client.connect("broker.mqttdashboard.com", 1883, 60)
+    client.subscribe(topic="foo/bar333")
+
+    # while True:
+    #     time.sleep(1)
+
+    # client.loop_forever()
+    client.loop_start()
+
     while prop.is_connected():
         t1, t2 = sc.get_temperatures()
         prop.set_value('room2nd_temperature', t1)
         prop.set_value('room4th_temperature', t2)
 
-        time.sleep(5)
+    #     time.sleep(5)
 
     print("Terminating")
 
