@@ -16,6 +16,7 @@ volatile byte state1 = LOW;
 volatile byte state2 = LOW;
 volatile byte state3 = LOW;
 
+long reset_time = -1;
 
 
 int msg = 0;
@@ -40,7 +41,7 @@ void setup() {
 }
 
 
-int event_length = 400;
+int event_length = 600;
 
 void blink1() {
   state1 = 1;
@@ -99,13 +100,20 @@ void loop() {
 
 //Serial.println(last_event);
 //delay(20);
-      
 
-    if (last_event < 0)
-      return;
 
     // end of event:
-    int now = millis();
+    long now = millis();
+
+    if (reset_time > 0 && now > reset_time)
+    {
+      Serial.println(0);
+      reset_time = -1;
+    }
+
+        if (last_event < 0)
+      return;
+    
     int dt = now-last_event;
 
     if (dt > event_length)
@@ -122,6 +130,8 @@ void loop() {
       state1 = 0;
       state2 = 0;
       state3 = 0;
+
+      reset_time = now + 3000;
 
       last_event = -1;
     }

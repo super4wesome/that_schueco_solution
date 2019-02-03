@@ -25,13 +25,18 @@ print("Connected")
 
 i = 1
 
+
 while True:
     msg = ser.read(1)
     # print(msg)
+    if msg == '0':
+        client.publish("be5/impact2", msg)
+        print("reset")
 
     if msg == '1':
         client.publish("be5/impact2", msg)
         print("SOFT")
+
 
     if msg == '2':
         client.publish("be5/impact2", msg)
